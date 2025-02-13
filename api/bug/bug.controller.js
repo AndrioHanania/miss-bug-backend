@@ -1,11 +1,15 @@
-import express from 'express'
-import { loggerService } from "../services/logger.service.js";
-import { bugService } from "../services/bug.service.js";
+import { loggerService } from "../../services/logger.service.js";
+import { bugService } from "./bug.service.js";
 
-export const bugRouter = express.Router()
+export const bugController = {
+    getBug,
+    createBug,
+    updateBug,
+    deleteBug,
+    downloadBugs
+} 
 
-// List all bugs or by id
-bugRouter.get('/', async (req, res) => {
+async function getBug (req, res) {
     try {
         const { bugId } = req.query
 
@@ -33,13 +37,7 @@ bugRouter.get('/', async (req, res) => {
             const bug = await bugService.getById(bugId)
             res.send(bug)
         } else {
-            const filterBy = {
-                ...bugService.getDefaultFilterBy(),
-                ...Object.fromEntries(
-                    Object.entries(req.query)
-                        .filter(([key, value]) => value !== undefined)
-                )
-            }
+            const filterBy = JSON.parse(req.query.filterBy)
             const bugs = await bugService.query(filterBy)
             res.send(bugs)
         }
@@ -47,10 +45,9 @@ bugRouter.get('/', async (req, res) => {
         loggerService.error(err.message)
         res.status(400).send(`Couldn't get bug(s)`)
     }
-})
+}
 
-// Create new bug
-bugRouter.post('/', async (req, res) => { 
+async function createBug(req, res) { 
     const bugToSave = req.body;
 
     try {
@@ -60,10 +57,9 @@ bugRouter.post('/', async (req, res) => {
         loggerService.error(err.message);
         res.status(400).send(`Couldn't create bug`);
     }
-});
+};
 
-// Update existing bug
-bugRouter.put('/', async (req, res) => {
+async function updateBug(req, res) {
     const bugToUpdate = req.body;
 
     try {
@@ -73,10 +69,9 @@ bugRouter.put('/', async (req, res) => {
         loggerService.error(err.message);
         res.status(400).send(`Couldn't update bug`);
     }
-});
+};
 
-// Delete bug
-bugRouter.delete('/', async (req, res) => {
+async function deleteBug(req, res) {
     const { bugId } = req.query
     try {
         await bugService.remove(bugId)
@@ -85,10 +80,9 @@ bugRouter.delete('/', async (req, res) => {
         loggerService.error(err.message)
         res.status(400).send(`Couldn't remove bug`)
     }
-})
+}
 
-// Download all bugs
-bugRouter.get('/download', async (req, res) => {
+async function downloadBugs(req, res) {
     try {
         const bugs = await bugService.query()
         const bugsStr = JSON.stringify(bugs, null, 2)
@@ -100,4 +94,4 @@ bugRouter.get('/download', async (req, res) => {
         loggerService.error(err.message)
         res.status(400).send(`Couldn't download bugs`)
     }
-})
+}
