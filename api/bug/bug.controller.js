@@ -37,8 +37,8 @@ async function getBug (req, res) {
             const bug = await bugService.getById(bugId)
             res.send(bug)
         } else {
-            const filterBy = JSON.parse(req.query.filterBy)
-            const bugs = await bugService.query(filterBy)
+            const filterBy = req.query.filterBy
+            const bugs = await bugService.query(_typeFixFilterBy(filterBy))
             res.send(bugs)
         }
     } catch (err) {
@@ -94,4 +94,14 @@ async function downloadBugs(req, res) {
         loggerService.error(err.message)
         res.status(400).send(`Couldn't download bugs`)
     }
+}
+
+function _typeFixFilterBy(filterBy) {
+    filterBy.page = +filterBy.page
+    filterBy.pageSize = +filterBy.pageSize
+    filterBy.severity = +filterBy.severity
+    filterBy.severitySort = filterBy.severitySort === 'true'
+    filterBy.labels = filterBy.labels || []
+
+    return filterBy
 }
