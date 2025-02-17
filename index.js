@@ -1,8 +1,10 @@
 import express from 'express' 
 import cors from 'cors'
+import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 import { bugRouter } from './api/bug/bug.route.js'
 import { userRoute } from './api/user/user.routes.js'
+import { authRoutes } from './api/auth/auth.routes.js'
 import { loggerService } from './services/logger.service.js'
 
 const app = express();
@@ -17,8 +19,8 @@ app.use(express.json());
 app.use(cookieParser())
 
 app.use('/api/bugs', bugRouter)
+app.use('/api/users', authRoutes)//auth
 app.use('/api/users', userRoute)
-
 
 app.get('/api', (req, res) => res.send('Hello there'));
 

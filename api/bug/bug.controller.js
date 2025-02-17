@@ -48,10 +48,11 @@ async function getBug (req, res) {
 }
 
 async function createBug(req, res) { 
+    const loggedinUser = req.loggedinUser
     const bugToSave = req.body;
 
     try {
-        const savedBug = await bugService.save(bugToSave);
+        const savedBug = await bugService.save(bugToSave, loggedinUser);
         res.send(savedBug);
     } catch (err) {
         loggerService.error(err.message);
@@ -60,10 +61,11 @@ async function createBug(req, res) {
 };
 
 async function updateBug(req, res) {
+    const loggedinUser = req.loggedinUser
     const bugToUpdate = req.body;
 
     try {
-        const updatedBug = await bugService.save(bugToUpdate);
+        const updatedBug = await bugService.save(bugToUpdate, loggedinUser);
         res.send(updatedBug);
     } catch (err) {
         loggerService.error(err.message);
@@ -74,7 +76,7 @@ async function updateBug(req, res) {
 async function deleteBug(req, res) {
     const { bugId } = req.query
     try {
-        await bugService.remove(bugId)
+        await bugService.remove(bugId, req.loggedinUser)
         res.send('OK')
     } catch (err) {
         loggerService.error(err.message)

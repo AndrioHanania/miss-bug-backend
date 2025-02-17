@@ -46,7 +46,7 @@ async function query(filterBy) {
         const startIdx = (filterBy.page - 1) * filterBy.pageSize
         bugsToReturn = bugsToReturn.slice(startIdx, startIdx + filterBy.pageSize)
 
-        return Promise.resolve({ bugs: bugsToReturn, total, pageSize: filterBy.pageSize, page: filterBy.page, pages })
+        return Promise.resolve({ bugs: bugsToReturn, total, pageSize: filterBy.pageSize, pages, page: filterBy.page })
     } catch (err) {
         loggerService.error(`Couldn't get bugs`)
         throw err
@@ -64,32 +64,47 @@ async function getById(bugId) {
     }
 }
 
-async function remove(bugId) {
+async function remove(bugId, loggedinUser) {
     try {
+        const bugToRemove = await getById(bugId)
+        if (!loggedinUser.isAdmin && bugToRemove.creator._id !== loggedinUser._id) 
+            throw 'Cant remove car'
+
         const idx = bugs.findIndex(bug => bug._id === bugId)
         if (idx === -1) throw `Couldn't find bug with _id ${bugId}`
         bugs.splice(idx, 1)
 
         await _saveBugsToFile(FILE_PATH)
     } catch (err) {
-        loggerService.error(err)
+        loggerService.error(`Couldn't remove bug : ${err}`)
         throw err
     }
 }
 
-async function save(bugToSave) { 
+async function save(bugToSave, loggedinUser) { 
     try {
         if (bugToSave._id) {
+            if (!loggedinUser.isAdmin && carToSave.creator._id !== loggedinUser._id) 
+                throw 'Cant save car'
+
             const idx = bugs.findIndex(bug => bug._id === bugToSave._id)
-            if (idx === -1) throw `Bad bug id ${bugToSave._id}`
+            if (idx === -1) 
+                throw `Bad bug id ${bugToSave._id}`
+
             bugToSave.updatedAt = Date.now()
-            bugs.splice(idx, 1, bugToSave)
-        } else {
-            bugToSave._id = makeId()
-            bugToSave.createdAt = bugToSave.updatedAt = Date.now()
-            bugs.push(bugToSave)
+            bugs[idx] = { ...bugs[idx], ...bugToSave } // bugs.splice(idx, 1, bugToSave)
+        } 
+        else {
+            bugs.push({
+                ...bugToSave,
+                _id: makeId(),
+                creator: { _id: loggedinUser._id, fullname: loggedinUser.fullname },
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            })
         }
-        await _saveBugsToFile('./data/bugs.json', bugs)
+
+        await _saveBugsToFile(FILE_PATH)
         return bugToSave
     } catch (err) {
         loggerService.error(`Couldn't save bug ${bugToSave._id}`)
