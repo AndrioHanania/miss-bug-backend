@@ -1,17 +1,27 @@
 import fs from 'fs'
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-_initDataFiles();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-function _initDataFiles() {
-    const dataDir = path.join(__dirname, 'data');
+const dataDir = path.join(__dirname, 'data');
+const dataFile = path.join(dataDir, 'bugs.json');
 
-    // Check if /data directory exists, if not, create it
+function initDataFiles() {
     if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
         console.log('Created /data directory');
     }
+
+    if (!fs.existsSync(dataFile)) {
+        fs.writeFileSync(dataFile, '[]', 'utf8');
+        console.log('Created bugs.json file');
+    }
 }
+
+initDataFiles();
+
 
 export function readJsonFile(path) {
     if (!fs.existsSync(path)) {
