@@ -1,7 +1,7 @@
 import { readJsonFile, writeJsonFile, makeId, userFile } from '../../../services/util.service.js'
 
 const FILE_PATH = userFile
-let users = readJsonFile('data/users.json')
+let users = readJsonFile(FILE_PATH)
 
 export const userService = {
     query,
