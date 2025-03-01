@@ -1,9 +1,12 @@
 import fs from 'fs'
 
 export function readJsonFile(path) {
-	const json = fs.readFileSync(path, 'utf8')
-	const data = JSON.parse(json)
-	return data
+    if (!fs.existsSync(path)) {
+        fs.writeFileSync(path, JSON.stringify({}, null, 2)); // Create an empty JSON file
+    }
+
+    const json = fs.readFileSync(path, 'utf8');
+    return JSON.parse(json);
 }
 
 export function writeJsonFile(path, data) {
