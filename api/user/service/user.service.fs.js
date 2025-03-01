@@ -1,7 +1,6 @@
-import fs from 'fs'
-import { readJsonFile, makeId } from '../../../services/util.service.js'
+import { readJsonFile, writeJsonFile, makeId, userFile } from '../../../services/util.service.js'
 
-
+const FILE_PATH = userFile
 let users = readJsonFile('data/users.json')
 
 export const userService = {
@@ -50,7 +49,7 @@ async function remove(userId) {
         throw new Error('Not authorized to delete this user')
 
     users = users.filter(user => user._id !== userId)
-    return await _saveUsersToFile()
+    return await writeJsonFile(FILE_PATH, users)
 }
 
 async function save(user) {
@@ -80,26 +79,13 @@ async function save(user) {
             users.push(user)
         }
 
-        const savedUser = await _saveUsersToFile()
+        const savedUser = await writeJsonFile(FILE_PATH, users)
             return savedUser
     }
     catch(err){
         loggerService.error(`couldn't save user: ${err}`)
         throw err
     }
-}
-
-function _saveUsersToFile() {
-    return new Promise((resolve, reject) => {
-
-        const usersStr = JSON.stringify(users, null, 2)
-        fs.writeFile('data/users.json', usersStr, (err) => {
-            if (err)
-                return console.log(err);
-
-            resolve()
-        })
-    })
 }
 
 async function getByUsername(username) {

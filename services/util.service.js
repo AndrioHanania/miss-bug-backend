@@ -6,7 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const dataDir = path.join(__dirname, 'data');
-const dataFile = path.join(dataDir, 'bugs.json');
+export const bugFile = path.join(dataDir, 'bugs.json');
+export const userFile = path.join(dataDir, 'users.json');
+export const msgFile = path.join(dataDir, 'msgs.json');
 
 function initDataFiles() {
     if (!fs.existsSync(dataDir)) {
@@ -14,9 +16,19 @@ function initDataFiles() {
         console.log('Created /data directory');
     }
 
-    if (!fs.existsSync(dataFile)) {
-        fs.writeFileSync(dataFile, '[]', 'utf8');
+    if (!fs.existsSync(bugFile)) {
+        fs.writeFileSync(bugFile, '[]', 'utf8');
         console.log('Created bugs.json file');
+    }
+
+    if (!fs.existsSync(userFile)) {
+        fs.writeFileSync(userFile, '[]', 'utf8');
+        console.log('Created users.json file');
+    }
+
+    if (!fs.existsSync(msgFile)) {
+        fs.writeFileSync(msgFile, '[]', 'utf8');
+        console.log('Created msgs.json file');
     }
 }
 

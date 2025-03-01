@@ -1,6 +1,5 @@
-import { makeId, readJsonFile } from "../../../services/util.service.js";
+import { makeId, readJsonFile, writeJsonFile, bugFile } from "../../../services/util.service.js";
 import { loggerService } from "../../../services/logger.service.js";
-import fs from 'fs'
 
 export const bugService = {
     query,
@@ -9,7 +8,7 @@ export const bugService = {
     save,
 }
 
-const FILE_PATH = './data/bugs.json'
+const FILE_PATH = bugFile
 let bugs = readJsonFile(FILE_PATH)
 
 async function query(filterBy) {
@@ -80,7 +79,7 @@ async function remove(bugId) {
         if (idx === -1) throw `Couldn't find bug with _id ${bugId}`
         bugs.splice(idx, 1)
 
-        await _saveBugsToFile(FILE_PATH)
+        await writeJsonFile(FILE_PATH, bugs)
     } catch (err) {
         loggerService.error(`Couldn't remove bug : ${err}`)
         throw err
@@ -112,20 +111,10 @@ async function save(bugToSave) {
             })
         }
 
-        await _saveBugsToFile(FILE_PATH)
+        await writeJsonFile(FILE_PATH, bugs)
         return bugToSave
     } catch (err) {
         loggerService.error(`Couldn't save bug ${bugToSave._id}`)
         throw err
     }
-}
-
-function _saveBugsToFile(path) {
-    return new Promise((resolve, reject) => {
-        const data = JSON.stringify(bugs, null, 2)
-        fs.writeFile(path, data, (err) => {
-            if (err) return reject(err)
-            resolve()
-        })
-    })
 }

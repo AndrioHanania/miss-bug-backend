@@ -1,6 +1,5 @@
-import { makeId, readJsonFile } from "../../../services/util.service.js";
+import { makeId, readJsonFile, msgFile } from "../../../services/util.service.js";
 import { loggerService } from "../../../services/logger.service.js";
-import fs from 'fs'
 
 export const msgService = {
     query,
@@ -9,7 +8,7 @@ export const msgService = {
     save,
 }
 
-const FILE_PATH = './data/msgs.json'
+const FILE_PATH = msgFile
 let msgs = readJsonFile(FILE_PATH)
 
 async function query(filterBy) {
