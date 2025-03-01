@@ -4,8 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --ignore \"./data\" server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --ignore \"./data\" index.js",
+    "server:dev": "set NODE_ENV=development&nodemon index.js",
+    "server:dev:mac": "export NODE_ENV=development && nodemon index.js",
+    "server:prod": "set NODE_ENV=production&node index.js",
+    "server:prod:mac": "export NODE_ENV=production && node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +19,8 @@
     "cors": "^2.8.5",
     "cryptr": "^6.3.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "mongodb": "^6.13.1",
+    "socket.io": "^4.8.1"
   }
 }

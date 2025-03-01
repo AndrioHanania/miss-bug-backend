@@ -1,5 +1,5 @@
-import { makeId, readJsonFile } from "../../services/util.service.js";
-import { loggerService } from "../../services/logger.service.js";
+import { makeId, readJsonFile } from "../../../services/util.service.js";
+import { loggerService } from "../../../services/logger.service.js";
 import fs from 'fs'
 
 export const bugService = {
@@ -19,6 +19,10 @@ async function query(filterBy) {
         // Filtering
         const regex = new RegExp(filterBy.txt, 'i')
         bugsToReturn = bugsToReturn.filter(bug => regex.test(bug.title) || regex.test(bug.description))
+
+        if(filterBy.creatorId){
+            bugsToReturn = bugsToReturn.filter(bug => bug.creator._id === filterBy.creatorId)
+        }
 
         if(filterBy.severitySort)
             bugsToReturn = bugsToReturn.filter(bug => bug.severity >= filterBy.severity)
@@ -64,11 +68,13 @@ async function getById(bugId) {
     }
 }
 
-async function remove(bugId, loggedinUser) {
+async function remove(bugId) {
+    const { loggedinUser } = asyncLocalStorage.getStore()
+
     try {
         const bugToRemove = await getById(bugId)
         if (!loggedinUser.isAdmin && bugToRemove.creator._id !== loggedinUser._id) 
-            throw 'Cant remove car'
+            throw 'Cant remove bug'
 
         const idx = bugs.findIndex(bug => bug._id === bugId)
         if (idx === -1) throw `Couldn't find bug with _id ${bugId}`
@@ -81,11 +87,13 @@ async function remove(bugId, loggedinUser) {
     }
 }
 
-async function save(bugToSave, loggedinUser) { 
-    try {
+async function save(bugToSave) { 
+    const { loggedinUser } = asyncLocalStorage.getStore()
+
+    try {        
         if (bugToSave._id) {
-            if (!loggedinUser.isAdmin && carToSave.creator._id !== loggedinUser._id) 
-                throw 'Cant save car'
+            if (!loggedinUser.isAdmin && bugToSave.creator._id !== loggedinUser._id) 
+                throw 'Cant save bug'
 
             const idx = bugs.findIndex(bug => bug._id === bugToSave._id)
             if (idx === -1) 

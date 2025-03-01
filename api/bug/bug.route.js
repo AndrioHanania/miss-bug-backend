@@ -4,8 +4,9 @@ import { requireAuth } from '../../middlewares/require-auth.middleware.js'
 
 export const bugRouter = express.Router()
 
-bugRouter.get('/', bugController.getBug)
+bugRouter.get('/', bugController.query)
+bugRouter.get('/download', bugController.downloadBugs);
+bugRouter.get('/:bugId', bugController.getBugById)
 bugRouter.post('/', requireAuth, bugController.createBug);
 bugRouter.put('/', requireAuth, bugController.updateBug);
-bugRouter.delete('/', requireAuth, bugController.deleteBug);
-bugRouter.get('/download', bugController.downloadBugs);
+bugRouter.delete('/:bugId', requireAuth, bugController.deleteBug);

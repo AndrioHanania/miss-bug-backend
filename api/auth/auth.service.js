@@ -1,7 +1,7 @@
 import Cryptr from 'cryptr'
 import bcrypt from 'bcrypt'
 
-import { userService } from '../user/user.service.js'
+import { userService } from '../user/service/index.js'
 import { loggerService } from '../../services/logger.service.js'
 
 const cryptr = new Cryptr(process.env.SECRET1)
@@ -27,14 +27,16 @@ function validateToken(token) {
         const loggedinUser = JSON.parse(json)
         return loggedinUser
     } catch (err) {
-        console.log('Invalid login token')
+        loggerService.info('Invalid login token')
     }
     return null
 }
 
 async function login(username, password) {
-    let user = await userService.getByUsername(username)
-    if (!user) throw 'Unknown username'
+    const user = await userService.getByUsername(username)
+
+    if (!user) 
+        throw new Error('Unknown username')
 
     const match = await bcrypt.compare(password, user.password)
 
@@ -58,5 +60,5 @@ async function signup({ username, password, fullname }) {
     if (userExist) throw 'Username already taken'
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS)
-    return userService.save({ username, password: hash, fullname })
+    return await userService.save({ username, password: hash, fullname })
 }

@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { readJsonFile, makeId } from '../../services/util.service.js'
+import { readJsonFile, makeId } from '../../../services/util.service.js'
 
 
 let users = readJsonFile('data/users.json')
@@ -12,8 +12,29 @@ export const userService = {
     getByUsername,
 }
 
-function query() {
-    return Promise.resolve(users)
+function query(filterBy) {
+    let usersToReturn = [...users]
+
+    // Filtering
+    const regex = new RegExp(filterBy.txt, 'i')
+    usersToReturn = usersToReturn.filter(user => regex.test(user.username) || regex.test(user.fullname))
+
+    if(filterBy.scoreSort)
+        usersToReturn = usersToReturn.filter(user => user.score >= filterBy.score)
+    else
+    usersToReturn = usersToReturn.filter(user => user.score < filterBy.score)
+
+    // Sorting
+    switch (filterBy.sortBy) {
+        case 'createdAt':
+            bugsToReturn = bugsToReturn.sort((b1, b2) => b1.createdAt - b2.createdAt)
+            break;
+        case 'score':
+            bugsToReturn = bugsToReturn.sort((b1, b2) => b1.score - b2.score)
+            break;
+    }
+
+    return Promise.resolve({ users: usersToReturn })
 }
 
 function getById(userId) {
@@ -22,12 +43,24 @@ function getById(userId) {
 }
 
 async function remove(userId) {
+    const { loggedinUser } = asyncLocalStorage.getStore()
+    const { _id: creatorId, isAdmin } = loggedinUser
+
+    if(!isAdmin && creatorId != userId)
+        throw new Error('Not authorized to delete this user')
+
     users = users.filter(user => user._id !== userId)
     return await _saveUsersToFile()
 }
 
 async function save(user) {
+    const { loggedinUser } = asyncLocalStorage.getStore()
+    const { _id: creatorId, isAdmin } = loggedinUser
+
     try{
+        if(!isAdmin && creatorId != userId)
+            throw new Error('Not authorized to delete this user')
+        
         if(user._id) {
             const userIdx = users.findIndex(currUser => currUser._id === user._id)
             if (userIdx < 0) 

@@ -1,9 +1,11 @@
-import { userService } from './user.service.js'
+import { userService } from './service/index.js'
 import { loggerService } from '../../services/logger.service.js'
 
 export async function getUser(req, res) {
+    const userId = req.params.userId
+
     try {
-        const user = await userService.getById(req.params.id)
+        const user = await userService.getById(userId)
         res.send(user)
     } catch (err) {
         loggerService.error('Failed to get user', err)
@@ -13,11 +15,8 @@ export async function getUser(req, res) {
 
 export async function getUsers(req, res) {
     try {
-        const filterBy = {
-            txt: req.query.txt || '',
-            minBalance: +req.query.minBalance || 0
-        }
-        const users = await userService.query(filterBy)
+        const filterBy = req.query.filterBy
+        const users = await userService.query(_typeFixFilterBy(filterBy))
         res.send(users)
     } catch (err) {
         loggerService.error('Failed to get users', err)
@@ -27,7 +26,7 @@ export async function getUsers(req, res) {
 
 export async function deleteUser(req, res) {
     try {
-        await userService.remove(req.params.id)
+        await userService.remove(req.params.userId)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
         loggerService.error('Failed to delete user', err)
@@ -55,4 +54,13 @@ export async function CreateUser(req, res) {
         loggerService.error('Failed to create user', err)
         res.status(400).send({ err: 'Failed to create user' })
     }
+}
+
+function _typeFixFilterBy(filterBy) {
+    filterBy.page = +filterBy.page
+    filterBy.pageSize = +filterBy.pageSize
+    filterBy.sortDir = +filterBy.sortDir
+    filterBy.score = +filterBy.score
+
+    return filterBy
 }

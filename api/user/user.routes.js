@@ -4,9 +4,9 @@ import { getUser, getUsers, deleteUser, updateUser, CreateUser } from './user.co
 const router = express.Router()
 
 router.get('/', getUsers)
-router.get('/:id', getUser)
-router.put('/:id', updateUser)
-router.post('/:id', CreateUser)
-router.delete('/:id', deleteUser)
+router.get('/:userId', getUser)
+router.put('/:userId', updateUser)
+router.post('/:userId', CreateUser)
+router.delete('/:userId', deleteUser)
 
 export const userRoute = router
