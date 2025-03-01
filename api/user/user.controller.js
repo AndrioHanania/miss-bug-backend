@@ -57,8 +57,6 @@ export async function CreateUser(req, res) {
 }
 
 function _typeFixFilterBy(filterBy) {
-    filterBy.page = +filterBy.page
-    filterBy.pageSize = +filterBy.pageSize
     filterBy.sortDir = +filterBy.sortDir
     filterBy.score = +filterBy.score
 

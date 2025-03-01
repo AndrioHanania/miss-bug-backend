@@ -22,7 +22,8 @@ async function query(filterBy) {
     } catch (err) {
         loggerService.error('cannot find users', err)
         throw err
-    }}
+    }
+}
 
 async function getById(userId) {
     try {
