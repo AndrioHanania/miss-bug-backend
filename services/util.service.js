@@ -10,14 +10,20 @@ export function readJsonFile(path) {
 }
 
 export function writeJsonFile(path, data) {
-    const json = JSON.stringify(data, null, 4)
     return new Promise((resolve, reject) => {
-        fs.writeFile(path, json, err => {
-            if (err) reject(err)
-            resolve()
-        })
-    })
+        // Ensure the file exists by creating it if necessary
+        if (!fs.existsSync(path)) {
+            fs.writeFileSync(path, JSON.stringify({}, null, 2));
+        }
+
+        const json = JSON.stringify(data, null, 4);
+        fs.writeFile(path, json, (err) => {
+            if (err) reject(err);
+            resolve();
+        });
+    });
 }
+
 
 export function makeId(length = 6) {
     var txt = ''
